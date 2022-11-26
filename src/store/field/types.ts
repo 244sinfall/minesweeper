@@ -5,6 +5,8 @@ export type Cell = {
     uncovered: boolean;
     marked: boolean;
     minesAround: MinesAround;
+    x: number; // Положение в массиве второго уровня
+    y: number; // Положение в массиве первого уровня!
 };
 
 export type Field = Cell[][];

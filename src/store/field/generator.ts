@@ -2,12 +2,14 @@ import { GameSettings } from '../game/types';
 import { Cell, Field, MinesAround } from './types';
 import { generateRandomNumber } from '../../utils/random-number';
 
-function defaultCell(): Cell {
+function defaultCell(rowIndex: number, cellIndex: number): Cell {
     return {
         isMine: false,
         uncovered: false,
         marked: false,
         minesAround: 0,
+        x: cellIndex,
+        y: rowIndex,
     };
 }
 
@@ -19,11 +21,35 @@ function defaultField(settings: GameSettings): Field {
     for (let i = 0; i < fieldHeight.length; i++) {
         const fieldWidth: Cell[] = new Array(settings.size.width);
         for (let j = 0; j < fieldWidth.length; j++) {
-            fieldWidth[j] = defaultCell();
+            fieldWidth[j] = defaultCell(i, j);
         }
         fieldHeight[i] = fieldWidth;
     }
     return fieldHeight;
+}
+
+export function getSurroundingCells(field: Field, rowIndex: number, cellIndex: number): Cell[] {
+    const height = field.length;
+    if (field.length == 0) return [];
+    const width = field[0].length;
+    const result: Cell[] = [];
+    const shouldCheckRight = cellIndex + 1 < width;
+    const shouldCheckLeft = cellIndex > 0;
+    const shouldCheckUp = rowIndex > 0;
+    const shouldCheckDown = rowIndex + 1 < height;
+    if (shouldCheckUp) {
+        result.push(field[rowIndex - 1][cellIndex]);
+        if (shouldCheckLeft) result.push(field[rowIndex - 1][cellIndex - 1]);
+        if (shouldCheckRight) result.push(field[rowIndex - 1][cellIndex + 1]);
+    }
+    if (shouldCheckLeft) result.push(field[rowIndex][cellIndex - 1]);
+    if (shouldCheckRight) result.push(field[rowIndex][cellIndex + 1]);
+    if (shouldCheckDown) {
+        result.push(field[rowIndex + 1][cellIndex]);
+        if (shouldCheckLeft) result.push(field[rowIndex + 1][cellIndex - 1]);
+        if (shouldCheckRight) result.push(field[rowIndex + 1][cellIndex + 1]);
+    }
+    return result;
 }
 
 export function generateField(settings: GameSettings): Field {
@@ -44,24 +70,8 @@ export function generateField(settings: GameSettings): Field {
     // Заполнение значения мин вокруг
     field.forEach((row, rowIndex) => {
         row.forEach((cell, cellIndex) => {
-            let surroundingMines = 0;
-            const shouldCheckRight = cellIndex + 1 < settings.size.width;
-            const shouldCheckLeft = cellIndex > 0;
-            const shouldCheckUp = rowIndex > 0;
-            const shouldCheckDown = rowIndex + 1 < settings.size.height;
-            if (shouldCheckUp) {
-                if (shouldCheckLeft && field[rowIndex - 1][cellIndex - 1].isMine) surroundingMines++;
-                if (field[rowIndex - 1][cellIndex].isMine) surroundingMines++;
-                if (shouldCheckRight && field[rowIndex - 1][cellIndex + 1].isMine) surroundingMines++;
-            }
-            if (shouldCheckLeft && field[rowIndex][cellIndex - 1].isMine) surroundingMines++;
-            if (shouldCheckRight && field[rowIndex][cellIndex + 1].isMine) surroundingMines++;
-            if (shouldCheckDown) {
-                if (shouldCheckLeft && field[rowIndex + 1][cellIndex - 1].isMine) surroundingMines++;
-                if (field[rowIndex + 1][cellIndex].isMine) surroundingMines++;
-                if (shouldCheckRight && field[rowIndex + 1][cellIndex + 1].isMine) surroundingMines++;
-            }
-            cell.minesAround = surroundingMines as MinesAround;
+            const surroundingCells = getSurroundingCells(field, rowIndex, cellIndex);
+            cell.minesAround = surroundingCells.filter((cell) => cell.isMine).length as MinesAround;
         });
     });
     return field;
