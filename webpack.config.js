@@ -33,6 +33,11 @@ const config = {
                 use: ['babel-loader', 'ts-loader'],
             },
             {
+                test: /\.js$/,
+                enforce: 'pre',
+                use: ['source-map-loader'],
+            },
+            {
                 test: /\.css$/i,
                 use: [stylesHandler, 'css-loader'],
             },
@@ -40,7 +45,6 @@ const config = {
                 test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
                 type: 'asset',
             },
-
             // Add your rules for custom modules here
             // Learn more about loaders from https://webpack.js.org/loaders/
         ],
@@ -49,6 +53,7 @@ const config = {
     resolve: {
         extensions: ['.tsx', '.ts', '.jsx', '.js', '...'],
     },
+    devtool: 'source-map',
 };
 
 module.exports = () => {
