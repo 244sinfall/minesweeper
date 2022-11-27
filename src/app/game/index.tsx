@@ -2,8 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { startNewGame } from '../../store/game/slice';
 import styled from 'styled-components';
-import Cell from '../../components/cell';
 import { FieldSize } from '../../store/game/types';
+import Cell from '../../containers/cell';
+import { useAudioPlayer } from '../../hooks/use-audio-player';
+import ExplosionGif from '../../assets/explosion.gif';
+import useImagePreloader from '../../hooks/use-image-preloader';
 
 const GameFieldWrapper = styled.div<{ size: number }>`
     position: fixed;
@@ -24,6 +27,8 @@ const FieldGrid = styled.div<{ fieldSize: FieldSize; cellSize: number }>`
 const GameField = () => {
     const settings = useAppSelector((state) => state.game.settings);
     const dispatch = useAppDispatch();
+    const playSound = useAudioPlayer();
+    useImagePreloader([ExplosionGif]);
     const [fieldSize, setFieldSize] = useState(Math.ceil(Math.min(window.innerHeight, window.innerWidth) * 0.7));
     const onResize = useCallback(() => {
         setFieldSize(Math.ceil(Math.min(window.innerHeight, window.innerWidth) * 0.7));
@@ -36,7 +41,7 @@ const GameField = () => {
     const fieldCells = useAppSelector((state) => state.field.field);
     const fieldView = useMemo(() => {
         return fieldCells.map((fieldRow, rowIndex) =>
-            fieldRow.map((cell, cellIndex) => <Cell key={rowIndex + cellIndex} {...cell} />),
+            fieldRow.map((cell, cellIndex) => <Cell key={rowIndex + cellIndex} cell={cell} onSound={playSound} />),
         );
     }, [fieldCells]);
     return (
