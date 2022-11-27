@@ -13,7 +13,7 @@ function preload(type: 'image' | 'audio', src: string) {
     });
 }
 
-export default function usePreloader(imageList: string[], audioList: string[]) {
+export default function useMediaPreloader(imageList: string[], audioList: string[]) {
     const [preloaded, setPreloaded] = useState<boolean>(false);
     useEffect(() => {
         let isCancelled = false;

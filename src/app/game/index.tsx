@@ -9,7 +9,7 @@ import ExplosionGif from '../../assets/explosion.gif';
 import DigSound from '../../assets/dig.ogg';
 import StickSound from '../../assets/stick.ogg';
 import WhooshSound from '../../assets/whoosh.ogg';
-import useImagePreloader from '../../hooks/use-image-preloader';
+import useMediaPreloader from '../../hooks/use-media-preloader';
 
 const GameFieldWrapper = styled.div<{ size: number }>`
     position: fixed;
@@ -31,7 +31,7 @@ const GameField = () => {
     const settings = useAppSelector((state) => state.game.settings);
     const dispatch = useAppDispatch();
     const playSound = useAudioPlayer();
-    useImagePreloader([ExplosionGif], [DigSound, StickSound, WhooshSound]);
+    useMediaPreloader([ExplosionGif], [DigSound, StickSound, WhooshSound]);
     const [fieldSize, setFieldSize] = useState(Math.ceil(Math.min(window.innerHeight, window.innerWidth) * 0.7));
     const onResize = useCallback(() => {
         setFieldSize(Math.ceil(Math.min(window.innerHeight, window.innerWidth) * 0.7));
