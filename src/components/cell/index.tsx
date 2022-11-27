@@ -49,17 +49,25 @@ const CellComp = styled.div<{ isMine: boolean }>`
     z-index: 1;
     width: 100%;
     height: 100%;
-
+    box-sizing: border-box;
     -webkit-backface-visibility: hidden;
     transform: translateZ(0) scale(1, 1);
     background: rgb(8, 2, 103);
     background: linear-gradient(160deg, rgba(8, 2, 103, 1) 0%, rgba(9, 9, 121, 1) 34%, rgba(41, 114, 129, 1) 100%)
         border-box;
     transition: background-color 100ms;
-    border-radius: 10px;
+    border-radius: 1rem;
 
     &[data-uncovered='true'] {
-        clip-path: polygon(0% 0%, 0 100%, 10% 90%, 10% 10%, 90% 10%, 90% 90%, 10% 90%, 0 100%, 100% 100%, 100% 0%);
+        border: 0.5rem solid transparent; /*2*/
+        box-shadow: 0 0 0 13px #333;
+        background: linear-gradient(160deg, rgba(8, 2, 103, 1) 0%, rgba(9, 9, 121, 1) 34%, rgba(41, 114, 129, 1) 100%)
+            border-box;
+        -webkit-mask: /*4*/ linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor; /*5'*/
+        mask-composite: exclude; /*5*/
+        //clip-path: polygon(0% 0%, 0 100%, 10% 90%, 10% 10%, 90% 10%, 90% 90%, 10% 90%, 0 100%, 100% 100%, 100% 0%);
     }
 `;
 const Wrapper = styled.div`

@@ -5,10 +5,11 @@ import styled from 'styled-components';
 import { FieldSize } from '../../store/game/types';
 import Cell from '../../containers/cell';
 import { useAudioPlayer } from '../../hooks/use-audio-player';
-import ExplosionGif from '../../assets/explosion.gif';
 import DigSound from '../../assets/dig.ogg';
 import StickSound from '../../assets/stick.ogg';
 import WhooshSound from '../../assets/whoosh.ogg';
+import ExplosionGif from '../../assets/explosion.gif';
+import ExplosionSound from '../../assets/explosion.ogg';
 import useMediaPreloader from '../../hooks/use-media-preloader';
 
 const GameFieldWrapper = styled.div<{ size: number }>`
@@ -31,9 +32,10 @@ const GameField = () => {
     const settings = useAppSelector((state) => state.game.settings);
     const dispatch = useAppDispatch();
     const playSound = useAudioPlayer();
-    useMediaPreloader([ExplosionGif], [DigSound, StickSound, WhooshSound]);
+    useMediaPreloader([ExplosionGif], [DigSound, StickSound, WhooshSound, ExplosionSound]);
     const [fieldSize, setFieldSize] = useState(Math.ceil(Math.min(window.innerHeight, window.innerWidth) * 0.7));
     const onResize = useCallback(() => {
+        if (window.innerWidth <= 750) return setFieldSize(window.innerWidth);
         setFieldSize(Math.ceil(Math.min(window.innerHeight, window.innerWidth) * 0.7));
     }, []);
     useEffect(() => {

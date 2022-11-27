@@ -6,6 +6,7 @@ import { Cell } from '../../store/field/types';
 import DigSound from '../../assets/dig.ogg';
 import UnflagSound from '../../assets/whoosh.ogg';
 import StickSound from '../../assets/stick.ogg';
+import ExplosionSound from '../../assets/explosion.ogg';
 
 const CellContainer = (props: { cell: Cell; onSound: (src: string, override: boolean) => void }) => {
     const dispatch = useAppDispatch();
@@ -15,7 +16,7 @@ const CellContainer = (props: { cell: Cell; onSound: (src: string, override: boo
             (e: React.MouseEvent<HTMLDivElement>) => {
                 e.preventDefault();
                 if (props.cell.marked || props.cell.uncovered) return;
-                props.onSound(DigSound, true);
+                props.onSound(props.cell.isMine ? ExplosionSound : DigSound, true);
                 dispatch(uncover(props.cell));
             },
             [props.cell],
