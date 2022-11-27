@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 
-function preloadImage(src: string) {
+function preload(type: 'image' | 'audio', src: string) {
     return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = function () {
-            resolve(img);
+        const object = type === 'image' ? new Image() : new Audio();
+        object.onload = function () {
+            resolve(object);
         };
-        img.onerror = img.onabort = function () {
+        object.onerror = object.onabort = function () {
             reject(src);
         };
-        img.src = src;
+        object.src = src;
     });
 }
 
-export default function useImagePreloader(imageList: string[]) {
-    const [imagesPreloaded, setImagesPreloaded] = useState<boolean>(false);
+export default function usePreloader(imageList: string[], audioList: string[]) {
+    const [preloaded, setPreloaded] = useState<boolean>(false);
     useEffect(() => {
         let isCancelled = false;
         async function effect() {
@@ -23,18 +23,22 @@ export default function useImagePreloader(imageList: string[]) {
             }
             const imagesPromiseList: Promise<unknown>[] = [];
             for (const i of imageList) {
-                imagesPromiseList.push(preloadImage(i));
+                imagesPromiseList.push(preload('image', i));
             }
-            await Promise.all(imagesPromiseList);
+            const audioPromiseList: Promise<unknown>[] = [];
+            for (const i of audioList) {
+                audioPromiseList.push(preload('audio', i));
+            }
+            await Promise.all(imagesPromiseList.concat(audioPromiseList));
             if (isCancelled) {
                 return;
             }
-            setImagesPreloaded(true);
+            setPreloaded(true);
         }
         effect();
         return () => {
             isCancelled = true;
         };
     }, [imageList]);
-    return imagesPreloaded;
+    return preloaded;
 }
