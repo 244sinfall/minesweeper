@@ -2,13 +2,13 @@ import React, { useCallback, useMemo } from 'react';
 import { useAppDispatch } from '../../store/hooks';
 import { mark, uncover } from '../../store/field/slice';
 import CellComponent from '../../components/cell';
-import { Cell } from '../../store/field/types';
+import { ICell } from '../../store/field/types';
 import DigSound from '../../assets/dig.ogg';
 import UnflagSound from '../../assets/whoosh.ogg';
 import StickSound from '../../assets/stick.ogg';
 import ExplosionSound from '../../assets/explosion.ogg';
 
-const CellContainer = (props: { cell: Cell; onSound: (src: string, override: boolean) => void }) => {
+const CellContainer = (props: { cell: ICell; onSound: (src: string, override: boolean) => void }) => {
     const dispatch = useAppDispatch();
 
     const callbacks = {

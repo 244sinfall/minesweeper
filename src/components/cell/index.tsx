@@ -1,11 +1,11 @@
 import React from 'react';
-import { Cell } from '../../store/field/types';
+import { ICell } from '../../store/field/types';
 import styled from 'styled-components';
 import FlagIcon from '../../assets/marked-flag.svg';
 import ExplosionGif from '../../assets/explosion.gif';
 
 interface CellComponentProps {
-    cell: Cell;
+    cell: ICell;
     description: string;
     onClick: (e: React.MouseEvent<HTMLDivElement>) => void;
     onMark: (e: React.MouseEvent<HTMLDivElement>) => void;
