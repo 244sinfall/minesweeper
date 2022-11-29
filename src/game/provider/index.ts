@@ -1,18 +1,18 @@
 // Взаимодействие игры с состоянием
 import { Field } from '../../store/field/types';
 
-type GameProviderActionType = 'get' | 'set';
+type GameProviderActionType = 'get' | 'update';
 
 type GameProviderListeners = {
     [K in GameProviderActionType]: (() => void)[];
 };
 
 export class GameProvider {
-    private _listeners: GameProviderListeners = { set: [], get: [] };
+    private _listeners: GameProviderListeners = { update: [], get: [] };
     constructor(private _state: Field) {}
-    set state(newState: Field) {
+    updateState(newState: Field) {
         this._state = newState;
-        this._listeners.set.forEach((action) => action());
+        this._listeners.update.forEach((action) => action());
     }
     get state() {
         this._listeners.get.forEach((action) => action());
