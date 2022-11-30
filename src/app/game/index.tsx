@@ -4,6 +4,7 @@ import { startNewGame } from '../../store/game/slice';
 import styled from 'styled-components';
 import { FieldView } from '../../game/field-view';
 import { GameProvider } from '../../game/provider';
+import { updateField } from '../../store/field/slice';
 
 const GameFieldCanvas = styled.canvas`
     position: fixed;
@@ -11,6 +12,7 @@ const GameFieldCanvas = styled.canvas`
     left: 50%;
     transform: translate(-50%, -50%);
     border: 0.1rem solid black;
+    user-select: none;
 `;
 
 const getGameFieldSize = () => {
@@ -19,7 +21,11 @@ const getGameFieldSize = () => {
 };
 
 const GameField = () => {
-    const state = useAppSelector((state) => ({ settings: state.game.settings, field: state.field.field }));
+    const state = useAppSelector((state) => ({
+        settings: state.game.settings,
+        field: state.field.field,
+        ready: state.field.ready,
+    }));
     const dispatch = useAppDispatch();
     // const playSound = useAudioPlayer();
     // useMediaPreloader([ExplosionGif], [DigSound, StickSound, WhooshSound, ExplosionSound]);
@@ -31,12 +37,22 @@ const GameField = () => {
     const fieldRef = useRef<FieldView | null>(null);
     const gameRef = useRef(new GameProvider(state.field));
     useEffect(() => {
-        gameRef.current.updateState(state.field);
-    }, [state.field]);
+        if (state.ready) {
+            gameRef.current.updateState(state.field);
+        }
+    }, [state.ready]);
     useEffect(() => {
         dispatch(startNewGame(state.settings));
         window.addEventListener('resize', callbacks.onResize);
-        return () => window.removeEventListener('resize', callbacks.onResize);
+        const unsub = gameRef.current.subscribe('export', (newState) => {
+            if (newState) {
+                dispatch(updateField(newState));
+            }
+        });
+        return () => {
+            window.removeEventListener('resize', callbacks.onResize);
+            unsub();
+        };
     }, []);
     useEffect(() => {
         if (gameCanvas.current) {

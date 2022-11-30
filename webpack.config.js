@@ -15,7 +15,7 @@ const config = {
     },
     devServer: {
         open: true,
-        host: 'localhost',
+        host: '0.0.0.0',
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -46,16 +46,22 @@ const config = {
                 type: 'asset',
             },
             {
-                test: /\.svg$/i,
-                issuer: /\.[jt]sx?$/,
-                use: ['@svgr/webpack'],
-            },
-            {
                 test: /\.(ogg|mp3|wav|mpe?g)$/i,
                 loader: 'file-loader',
                 options: {
                     name: '[path][name].[ext]',
                 },
+            },
+            {
+                test: /\.svg$/i,
+                type: 'asset/inline',
+                resourceQuery: /url/, // *.svg?url
+            },
+            {
+                test: /\.svg$/i,
+                issuer: /\.[jt]sx?$/,
+                resourceQuery: { not: [/url/] },
+                use: ['@svgr/webpack'],
             },
             // Add your rules for custom modules here
             // Learn more about loaders from https://webpack.js.org/loaders/

@@ -13,4 +13,5 @@ export type Field = ICell[][];
 
 export type FieldState = {
     field: Field;
+    ready: boolean;
 };
