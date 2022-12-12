@@ -3,8 +3,13 @@ import { FieldView } from '../field-view';
 import { ICell } from '../../store/field/types';
 import * as MineAmountColors from './text-colors.json';
 import flagSVG from '../../assets/flag.svg?url';
+import bombSVG from '../../assets/bomb.svg?url';
 
+/**
+ * Придумать загрузку картинок!
+ */
 export class CellView {
+    // private _images: CellViewImages;
     constructor(private _field: FieldView, private _data: ICell, private _context: CanvasRenderingContext2D) {}
     private _prepareDraw() {
         this._context.save();
@@ -20,6 +25,8 @@ export class CellView {
     }
     draw() {
         this._defaultView();
+        if (this.data.uncovered) this.uncover();
+        else if (this.data.marked) this._addMark();
     }
     private _defaultView() {
         const size = this._field.cellSize;
@@ -33,8 +40,10 @@ export class CellView {
         this._finishDraw();
     }
     private _removeMark() {
+        this._removeImage(0.8 * this._field.cellSize);
+    }
+    private _removeImage(svgSize: number) {
         const size = this._field.cellSize;
-        const svgSize = 0.8 * size;
         this._prepareDraw();
         this._context.clearRect(
             this._data.x * size + (size - svgSize) / 2,
@@ -50,23 +59,38 @@ export class CellView {
         );
         this._finishDraw();
     }
-    private _addMark() {
+    private _placeImageIn(maxSize: number, base64: string, alt: string) {
         this._prepareDraw();
         const size = this._field.cellSize;
-        const svgSize = 0.8 * size;
-        const flag = new Image();
-        flag.alt = 'Флаг';
-        flag.onload = () => {
+        const img = new Image();
+        img.alt = alt;
+        img.onload = () => {
+            let { width, height } = img;
+            const aspectRatio = width / height;
+            // Если ширина больше чем высота
+            if (aspectRatio > 1) {
+                width = maxSize;
+                height = maxSize / aspectRatio;
+            } else {
+                height = maxSize;
+                width = maxSize * aspectRatio;
+            }
             this._context.drawImage(
-                flag,
-                this._data.x * size + (size - svgSize) / 2,
-                this._data.y * size + (size - svgSize) / 2,
-                svgSize,
-                svgSize,
+                img,
+                this._data.x * size + (size - width) / 2,
+                this._data.y * size + (size - height) / 2,
+                width,
+                height,
             );
             this._finishDraw();
         };
-        flag.src = flagSVG;
+        img.src = base64;
+    }
+    private _addMark() {
+        this._placeImageIn(0.8 * this._field.cellSize, flagSVG, 'Флаг');
+    }
+    private _addMine() {
+        this._placeImageIn(this._field.cellSize, bombSVG, 'Мина!');
     }
     mark() {
         if (this._data.marked) {
@@ -84,7 +108,7 @@ export class CellView {
         this._context.fillStyle = '#c0c0c0';
         this._context.fillRect(this._data.x * size, this._data.y * size, size, size);
         this._context.strokeRect(this._data.x * size, this._data.y * size, size - 0.5, size - 0.5);
-        if (this._data.minesAround !== 0) {
+        if (this._data.minesAround !== 0 && !this._data.isMine) {
             this._context.font = '2rem Arimo';
             this._context.textBaseline = 'middle';
             this._context.textAlign = 'center';
@@ -95,9 +119,10 @@ export class CellView {
                 this._data.x * size + size / 2,
                 this._data.y * size + size / 2,
             );
+        } else if (this._data.isMine) {
+            this._addMine();
         }
         this._data = { ...this._data, uncovered: true };
         if (this._data.marked) this._data = { ...this._data, marked: false };
-        this._finishDraw();
     }
 }

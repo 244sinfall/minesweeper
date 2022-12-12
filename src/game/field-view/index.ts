@@ -37,6 +37,7 @@ export class FieldView {
         this.drawField();
     }
     private _onCellUncover(cell: CellView) {
+        if (cell.data.uncovered || cell.data.marked) return;
         const uncoverCell = (y: number, x: number) => {
             this._state[y][x].uncover();
             if (this._state[y][x].data.minesAround === 0 && !this._state[y][x].data.isMine) {
@@ -46,9 +47,12 @@ export class FieldView {
             }
         };
         uncoverCell(cell.data.y, cell.data.x);
+        this._game.exportState(this._stateToField());
     }
     private _onCellMark(cell: CellView) {
+        if (cell.data.uncovered) return;
         cell.mark();
+        this._game.exportState(this._stateToField());
     }
     constructor(
         private _game: GameProvider,
@@ -78,7 +82,6 @@ export class FieldView {
                 if (!this._selectedCell) return;
                 this._onCellMark(this._selectedCell);
             }
-            this._game.exportState(this._stateToField());
         };
         this._canvas.oncontextmenu = (e) => e.preventDefault();
         this._canvas.onpointerup = (e) => {
